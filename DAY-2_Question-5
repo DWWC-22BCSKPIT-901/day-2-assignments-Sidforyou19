@@ -1,0 +1,59 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+bool canAssignJobs(const vector<int>& jobs, int k, int maxTime) {
+    vector<int> workers(k, 0);  
+
+    function<bool(int)> backtrack = [&](int i) -> bool {
+        if (i == jobs.size())  
+            return true;
+
+        for (int j = 0; j < k; ++j) {
+            if (workers[j] + jobs[i] <= maxTime) {  
+                workers[j] += jobs[i];
+                if (backtrack(i + 1))  
+                    return true;
+                workers[j] -= jobs[i];  
+            }
+            if (workers[j] == 0)  
+                break;
+        }
+        return false;
+    };
+
+    return backtrack(0);  
+}
+
+int minimumTimeRequired(vector<int>& jobs, int k) {
+    sort(jobs.rbegin(), jobs.rend());  
+
+    int left = jobs[0], right = 0;
+    for (int job : jobs)
+        right += job;  
+
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        if (canAssignJobs(jobs, k, mid)) {
+            right = mid;  
+        } else {
+            left = mid + 1;  
+        }
+    }
+
+    return left;  
+}
+
+int main() {
+    vector<int> jobs1 = {3, 2, 3};
+    int k1 = 3;
+    cout << "Output: " << minimumTimeRequired(jobs1, k1) << endl;  
+
+    vector<int> jobs2 = {1, 2, 4, 7, 8};
+    int k2 = 2;
+    cout << "Output: " << minimumTimeRequired(jobs2, k2) << endl;  
+
+    return 0;
+}
